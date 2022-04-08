@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Lesson1
 {
-    public class Lesson2
+    public class Lesson1
     {
         public static async Task Main(string[] args)
         {
@@ -11,7 +11,7 @@ namespace Lesson1
             using StreamWriter sw = new StreamWriter("result.txt", false);
 
             var downloadTasksQuery = Enumerable
-                .Range(1, 10)
+                .Range(4, 10)
                 .Select((index) => GetPostAsync(httpClient, $"https://jsonplaceholder.typicode.com/posts/{index}"));
 
             var downloadTasks = downloadTasksQuery.ToList();

@@ -1,6 +1,6 @@
 ﻿namespace PersonsWebApp
 {
-    public abstract class QueryFilter
+    public interface IQueryFilter
     {
         public abstract bool Validate();
     }

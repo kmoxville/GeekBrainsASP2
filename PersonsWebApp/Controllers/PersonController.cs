@@ -119,12 +119,12 @@ namespace PersonsWebApp.Controllers
         }
     }
 
-    public class SkipTakeFilter : QueryFilter
+    public class SkipTakeFilter : IQueryFilter
     {
         public int Skip { get; set; }
         public int Take { get; set; }
 
-        public override bool Validate()
+        public bool Validate()
         {
             return true;
         }

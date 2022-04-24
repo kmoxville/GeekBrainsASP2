@@ -24,8 +24,7 @@ namespace PersonsWebApp.DAL.Repository
 
         public IQueryable<TEntity> GetAll() => _dbSet
             .Where(entity => !entity.IsDeleted)
-            .AsQueryable()
-            .AsNoTracking();
+            .AsQueryable();
 
         public async Task<TEntity?> GetByID(int id)
         {
@@ -45,8 +44,7 @@ namespace PersonsWebApp.DAL.Repository
 
         public async Task Update(TEntity entityToUpdate)
         {
-            _dbSet.Attach(entityToUpdate);
-            _context.Entry(entityToUpdate).State = EntityState.Modified;
+            _context.Update(entityToUpdate);
             await SaveAsync();
         }
     }

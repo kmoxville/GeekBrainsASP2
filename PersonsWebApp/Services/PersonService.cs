@@ -4,7 +4,7 @@ using PersonsWebApp.DAL.Repository;
 
 namespace PersonsWebApp.Services
 {
-    public class PersonService : IService<PersonEntity, PersonDto>
+    public class PersonService : IRepositoryService<PersonEntity, PersonDto>
     {
         private readonly IRepository<PersonEntity> _repository;
         private readonly IMapper _mapper;

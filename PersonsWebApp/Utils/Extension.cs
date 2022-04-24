@@ -31,13 +31,15 @@ namespace PersonsWebApp.Utils
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services.TryAddTransient<IRepository<PersonEntity>, Repository<PersonEntity>>();
+            services.TryAddTransient<IRepository<UserEntity>, Repository<UserEntity>>();
 
             return services;
         }
 
-        public static IServiceCollection AddDtoServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            services.TryAddTransient<IService<PersonEntity, PersonDto>, PersonService>();
+            services.TryAddTransient<IRepositoryService<PersonEntity, PersonDto>, PersonService>();
+            services.TryAddTransient<ILoginService, LoginService>();
 
             return services;
         }

@@ -1,6 +1,6 @@
 ﻿namespace PersonsWebApp.Services
 {
-    public interface IService<TEntity, TDto> 
+    public interface IRepositoryService<TEntity, TDto> 
         where TEntity : class
     {
         Task<TDto> InsertAsync(TDto item);

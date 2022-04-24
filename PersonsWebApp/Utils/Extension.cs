@@ -9,9 +9,21 @@ namespace PersonsWebApp.Utils
 {
     internal static class Extension
     {
-        public static IServiceCollection AddDatabaseContext(this IServiceCollection services)
+        public static IServiceCollection AddDatabaseContext(this IServiceCollection services, IConfiguration configRoot)
         {
-            services.AddDbContext<DatabaseContext>(opt => opt.UseInMemoryDatabase("PersonsWebApp"));
+            DatabaseOptions dbOptions = new();
+            configRoot.GetSection("Database")
+                .Bind(dbOptions);
+
+            var connectionString = $"server={dbOptions.Server};user={dbOptions.Username};password={dbOptions.Password};database=ef";
+            var serverVersion = new MySqlServerVersion(ServerVersion.AutoDetect(connectionString));
+
+            services.AddDbContext<DatabaseContext>(
+            dbContextOptions => dbContextOptions
+                .UseMySql(connectionString, serverVersion)
+                .LogTo(Console.WriteLine, LogLevel.Information)
+                .EnableSensitiveDataLogging()
+                .EnableDetailedErrors());
 
             return services;
         }
@@ -19,13 +31,15 @@ namespace PersonsWebApp.Utils
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services.TryAddTransient<IRepository<PersonEntity>, Repository<PersonEntity>>();
+            services.TryAddTransient<IRepository<UserEntity>, Repository<UserEntity>>();
 
             return services;
         }
 
-        public static IServiceCollection AddDtoServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            services.TryAddTransient<IService<PersonEntity, PersonDto>, PersonService>();
+            services.TryAddTransient<IRepositoryService<PersonEntity, PersonDto>, PersonService>();
+            services.TryAddTransient<ILoginService, LoginService>();
 
             return services;
         }

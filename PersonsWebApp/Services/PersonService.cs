@@ -20,11 +20,10 @@ namespace PersonsWebApp.Services
             try
             {
                 await _repository.DeleteAsync(id);
-                await _repository.SaveAsync();
 
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
@@ -36,7 +35,7 @@ namespace PersonsWebApp.Services
             return _mapper.Map<PersonDto>(entity);
         }
 
-        public IEnumerable<PersonDto> GetAll()
+        public IQueryable<PersonDto> GetAll()
         {
             return _repository
                 .GetAll()
@@ -47,7 +46,6 @@ namespace PersonsWebApp.Services
         {
             var entity = _mapper.Map<PersonEntity>(item);
             await _repository.InsertAsync(entity);
-            await _repository.SaveAsync();
 
             return _mapper.Map<PersonDto>(entity);
         }
@@ -59,8 +57,7 @@ namespace PersonsWebApp.Services
             if (entity == null)
                 return;
 
-            _repository.Update(_mapper.Map<PersonEntity>(item));
-            await _repository.SaveAsync();
+            await _repository.Update(_mapper.Map<PersonEntity>(item));
         }
     }
 }

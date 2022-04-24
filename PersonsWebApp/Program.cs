@@ -3,7 +3,7 @@ using PersonsWebApp.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDatabaseContext();
+builder.Services.AddDatabaseContext(builder.Configuration);
 builder.Services.AddRepositories();
 builder.Services.AddDtoServices();
 builder.Services.AddAutoMapper(typeof(MapperProfile));

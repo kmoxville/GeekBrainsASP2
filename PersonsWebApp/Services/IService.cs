@@ -7,6 +7,6 @@
         Task Update(TDto item);
         Task<bool> Delete(int id);
         Task<TDto> Get(int id);
-        IEnumerable<TDto> GetAll();
+        IQueryable<TDto> GetAll();
     }
 }

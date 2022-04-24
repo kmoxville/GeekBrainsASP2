@@ -9,9 +9,21 @@ namespace PersonsWebApp.Utils
 {
     internal static class Extension
     {
-        public static IServiceCollection AddDatabaseContext(this IServiceCollection services)
+        public static IServiceCollection AddDatabaseContext(this IServiceCollection services, IConfiguration configRoot)
         {
-            services.AddDbContext<DatabaseContext>(opt => opt.UseInMemoryDatabase("PersonsWebApp"));
+            DatabaseOptions dbOptions = new();
+            configRoot.GetSection("Database")
+                .Bind(dbOptions);
+
+            var connectionString = $"server={dbOptions.Server};user={dbOptions.Username};password={dbOptions.Password};database=ef";
+            var serverVersion = new MySqlServerVersion(ServerVersion.AutoDetect(connectionString));
+
+            services.AddDbContext<DatabaseContext>(
+            dbContextOptions => dbContextOptions
+                .UseMySql(connectionString, serverVersion)
+                .LogTo(Console.WriteLine, LogLevel.Information)
+                .EnableSensitiveDataLogging()
+                .EnableDetailedErrors());
 
             return services;
         }

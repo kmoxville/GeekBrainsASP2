@@ -7,12 +7,10 @@
 
         Task<TEntity?> GetByID(int id);
 
-        IEnumerable<TEntity> GetAll();
+        IQueryable<TEntity> GetAll();
 
         Task InsertAsync(TEntity entity);
 
-        void Update(TEntity entityToUpdate);
-
-        Task SaveAsync();
+        Task Update(TEntity entityToUpdate);
     }
 }

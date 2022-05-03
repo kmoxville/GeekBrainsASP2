@@ -18,33 +18,35 @@ namespace PersonsWebApp.DAL.Repository
         public async Task DeleteAsync(int id)
         {
             TEntity? entityToDelete = await _dbSet.FindAsync(id);
-            if (entityToDelete != null)
-                _dbSet.Remove(entityToDelete);
+            entityToDelete?.Delete();
+            await SaveAsync();
         }
 
-        public IEnumerable<TEntity> GetAll() => _dbSet
+        public IQueryable<TEntity> GetAll() => _dbSet
             .Where(entity => !entity.IsDeleted)
-            .AsEnumerable();
+            .AsQueryable();
 
-        public async Task<TEntity?> GetByID(int id)
+        public Task<TEntity?> GetByIDAsync(int id)
         {
-            return await _dbSet.FindAsync(id);
+            return GetAll().Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
         }
 
         public async Task InsertAsync(TEntity entity)
         {
             await _dbSet.AddAsync(entity);
+            await SaveAsync();
         }
 
-        public async Task SaveAsync()
+        private async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
         }
 
-        public void Update(TEntity entityToUpdate)
+        public async Task UpdateAsync(TEntity entityToUpdate)
         {
-            _dbSet.Attach(entityToUpdate);
-            _context.Entry(entityToUpdate).State = EntityState.Modified;
+            _context.Update(entityToUpdate);
+            await SaveAsync();
         }
     }
 }

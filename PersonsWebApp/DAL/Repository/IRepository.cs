@@ -5,14 +5,12 @@
     {
         Task DeleteAsync(int id);
 
-        Task<TEntity?> GetByID(int id);
+        Task<TEntity?> GetByIDAsync(int id);
 
-        IEnumerable<TEntity> GetAll();
+        IQueryable<TEntity> GetAll();
 
         Task InsertAsync(TEntity entity);
 
-        void Update(TEntity entityToUpdate);
-
-        Task SaveAsync();
+        Task UpdateAsync(TEntity entityToUpdate);
     }
 }

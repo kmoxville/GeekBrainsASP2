@@ -9,6 +9,8 @@ namespace PersonsWebApp.DAL
         {
             CreateMap<PersonEntity, PersonDto>()
                 .ReverseMap();
+
+            CreateMap<UserEntity, UserDto>();
         }
     }
 }

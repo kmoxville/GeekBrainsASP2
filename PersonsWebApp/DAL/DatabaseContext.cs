@@ -6,14 +6,26 @@ namespace PersonsWebApp.DAL
     public sealed class DatabaseContext : DbContext
     {
         public DbSet<PersonEntity> Persons { get; set; } = null!;
+        public DbSet<UserEntity> Users { get; set; } = null!;
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
-            Database.EnsureCreated();
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<UserEntity>().HasData(
+                new UserEntity()
+                {
+                    Id = 1,
+                    Username = "root",
+                    Password = "pwd",
+                    Role = "admin"
+                });
+
             modelBuilder.Entity<PersonEntity>().HasData(
                 new PersonEntity
                 {

@@ -63,7 +63,7 @@ namespace PersonsWebApp.Services
         {
             userEntity.RefreshTokens.Add(new RefreshTokenEntity() { Token = refreshToken });
 
-            await _repository.Update(userEntity);
+            await _repository.UpdateAsync(userEntity);
         }
 
         private string GenerateJWTSecurityToken(string username, int minutesExpires = 0)

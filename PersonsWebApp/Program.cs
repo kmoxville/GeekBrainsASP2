@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDatabaseContext(builder.Configuration);
 builder.Services.AddRepositories();
 builder.Services.AddServices();
+builder.Services.AddValidation();
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 builder.Services.AddControllers();
 builder.Services.AddCors();

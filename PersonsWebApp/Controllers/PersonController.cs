@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PersonsWebApp.DAL;
 using PersonsWebApp.DAL.Entities;
+using PersonsWebApp.DAL.Responses.Person;
+using PersonsWebApp.DAL.Validation;
+using PersonsWebApp.Requests;
 using PersonsWebApp.Services;
 
 namespace PersonsWebApp.Controllers
@@ -16,71 +19,89 @@ namespace PersonsWebApp.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class PersonController : ControllerBase
+    public sealed class PersonController : ControllerBase
     {
-        private readonly IRepositoryService<PersonEntity, PersonDto> _personService;
+        private readonly IPersonService _personService;
 
-        public PersonController(IRepositoryService<PersonEntity, PersonDto> personService)
+        public PersonController(IPersonService personService)
         {
             _personService = personService;
         }
 
         // GET: api/Person
         [HttpGet]
-        public ActionResult<IEnumerable<PersonDto>> Get([FromQuery] SkipTakeFilter filter)
+        public async Task<IActionResult> Get([FromQuery] GetPersonsListByFilterRequest request)
         {
-            var result = _personService.GetAll();
+            IReadOnlyList<PersonDto> result;
 
-            if (filter.Skip != 0)
-                result = result.Skip(filter.Skip);
+            try
+            {
+                result = await _personService.GetByFilterAsync(request);
+            }
+            catch (ValidationException vx)
+            {
+                return BadRequest(vx.Result);
+            }
 
-            if (filter.Take != 0)
-                result = result.Take(filter.Take);
-
-            return Ok(result);
+            return Ok(new GetPersonsListResponse() { Persons = result });
         }
 
         // GET: api/Person/Search
         [HttpGet("Search")]
-        public ActionResult<IEnumerable<PersonDto>> GetSearch([FromQuery] string searchTerm)
+        public async Task<IActionResult> GetSearch([FromQuery] GetPersonsListBySearchTermRequest request)
         {
-            var result = _personService
-                .GetAll()
-                .Where(person => person.LastName == searchTerm);
+            IReadOnlyList<PersonDto> result;
 
-            return Ok(result);
+            try
+            {
+                result = await _personService.GetBySearchTermAsync(request);
+            }
+            catch (ValidationException vx)
+            {
+                return BadRequest(vx.Result);
+            }
+
+            return Ok(new GetPersonsListResponse() { Persons = result });
         }
 
         // GET: api/Person/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<PersonDto>> Get(int id)
+        public async Task<IActionResult> Get([FromRoute] int id)
         {
-            var personEntity = await _personService.Get(id);
+            PersonDto result;
 
-            if (personEntity == null)
+            try
             {
-                return NotFound();
+                result = await _personService.GetByIdAsync(new GetPersonByIdRequest() { Id = id });
+            }
+            catch (ValidationException vx)
+            {
+                return BadRequest(vx.Result);
             }
 
-            return personEntity;
+            return Ok(new GetPersonResponse { Person = result });
         }
 
         // PUT: api/Person/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] PersonDto personDto)
+        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] UpdatePersonRequest request)
         {
-            if (id != personDto.Id)
+            if (id != request.Person.Id)
             {
                 return BadRequest();
             }
 
             try
             {
-                await _personService.Update(personDto);
+                await _personService.UpdateAsync(request);
+            }
+            catch (ValidationException vx)
+            {
+                return BadRequest(vx.Result);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!PersonEntityExists(id))
+                if (!await PersonEntityExists(request.Person.Id))
                 {
                     return NotFound();
                 }
@@ -95,18 +116,37 @@ namespace PersonsWebApp.Controllers
 
         // POST: api/Person
         [HttpPost]
-        public async Task<ActionResult<PersonEntity>> Post([FromBody] PersonDto person)
+        public async Task<ActionResult<PersonEntity>> Post([FromBody] InsertPersonRequest request)
         {
-            var createdItem = await _personService.InsertAsync(person);
+            PersonDto createdItem;
+
+            try
+            {
+                createdItem = await _personService.InsertAsync(request);
+            }
+            catch (ValidationException vx)
+            {
+                return BadRequest(vx.Result);
+            }
 
             return CreatedAtAction(nameof(Post), new { id = createdItem.Id }, createdItem);
         }
 
         // DELETE: api/Person/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            bool result = await _personService.Delete(id);
+            bool result;
+
+            try
+            {
+                result = await _personService.DeleteAsync(new DeletePersonByIdRequest() { Id = id });
+            }
+            catch(ValidationException vx)
+            {
+                return BadRequest(vx.Result);
+            }
+
             if (!result)
             {
                 return NotFound();
@@ -115,20 +155,9 @@ namespace PersonsWebApp.Controllers
             return NoContent();
         }
 
-        private bool PersonEntityExists(int id)
+        private async Task<bool> PersonEntityExists(int id)
         {
-            return _personService.GetAll().Any(e => e.Id == id);
-        }
-    }
-
-    public class SkipTakeFilter : IQueryFilter
-    {
-        public int Skip { get; set; }
-        public int Take { get; set; }
-
-        public bool Validate()
-        {
-            return true;
+            return (await _personService.GetByIdAsync(id)) != null;
         }
     }
 }

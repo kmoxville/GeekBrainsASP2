@@ -26,9 +26,10 @@ namespace PersonsWebApp.DAL.Repository
             .Where(entity => !entity.IsDeleted)
             .AsQueryable();
 
-        public async Task<TEntity?> GetByID(int id)
+        public Task<TEntity?> GetByIDAsync(int id)
         {
-            return await _dbSet.FindAsync(id);
+            return GetAll().Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
         }
 
         public async Task InsertAsync(TEntity entity)
@@ -42,7 +43,7 @@ namespace PersonsWebApp.DAL.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task Update(TEntity entityToUpdate)
+        public async Task UpdateAsync(TEntity entityToUpdate)
         {
             _context.Update(entityToUpdate);
             await SaveAsync();

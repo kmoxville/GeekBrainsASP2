@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PersonsWebApp.DAL;
 using PersonsWebApp.DAL.Entities;
 using PersonsWebApp.DAL.Repository;
+using PersonsWebApp.DAL.Validation.Requests.Person;
 using PersonsWebApp.Services;
 
 namespace PersonsWebApp.Utils
@@ -38,8 +39,20 @@ namespace PersonsWebApp.Utils
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            services.TryAddTransient<IRepositoryService<PersonEntity, PersonDto>, PersonService>();
+            services.TryAddTransient<IPersonService, PersonService>();
             services.TryAddTransient<ILoginService, LoginService>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddValidation(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IDeletePersonByIdValidator, DeletePersonByIdValidator>();
+            services.TryAddSingleton<IGetPersonByIdValidator, GetPersonByIdValidator>();
+            services.TryAddSingleton<IGetPersonsListByFilterValidator, GetPersonsListByFilterValidator>();
+            services.TryAddSingleton<IGetPersonsListBySearchTermValidator, GetPersonsListBySearchTermValidator>();
+            services.TryAddSingleton<IInsertPersonValidator, InsertPersonValidator>();
+            services.TryAddSingleton<IUpdatePersonValidator, UpdatePersonValidator>();
 
             return services;
         }

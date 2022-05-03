@@ -5,12 +5,12 @@
     {
         Task DeleteAsync(int id);
 
-        Task<TEntity?> GetByID(int id);
+        Task<TEntity?> GetByIDAsync(int id);
 
         IQueryable<TEntity> GetAll();
 
         Task InsertAsync(TEntity entity);
 
-        Task Update(TEntity entityToUpdate);
+        Task UpdateAsync(TEntity entityToUpdate);
     }
 }
